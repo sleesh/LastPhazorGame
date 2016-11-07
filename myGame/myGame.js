@@ -4,38 +4,37 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
 var game_state = {}
 
-
-game_state.main = function() {};
-game_state.main.prototype = {
+game_state = function() {};
+game_state.prototype = {
 
 
     preload: function() {
         game.load.image('sky', 'assets/sky.png');
+        game.load.audio('pickup', 'assets/pickup_Coin2.wav');
         game.load.image('ground', 'assets/platform.png');
-        game.load.image('star', 'assets/star.png');
-        game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+        game.load.image('star', 'assets/New Piskel (2).png', 32, 32);
+        game.load.spritesheet('dude', 'assets/Ninja dude.png', 64, 64);
     },
 
 
     create: function() {
+     var music = new Phaser.Sound(game,'pickup',1,true);
         this.score = 0;
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.add.sprite(0, 0, 'sky');
-        // game.add.sprite(game.world.width/2, game.world.height/2, 'star');
+        game.add.sprite(game.world.width/2, game.world.height/2, 'ground');
         this.platforms = game.add.group();
         this.platforms.enableBody = true;
         var ground = this.platforms.create(0, game.world.height - 64, 'ground');
         ground.scale.setTo(2, 2);
         ground.body.immovable = true;
-        var ledge = this.platforms.create(30, 10, 'ground');
-        ledge.body.immovable = true;
         this.player = game.add.sprite(128, game.world.height - 150, 'dude');
         game.physics.arcade.enable(this.player);
-        this.player.body.bounce.y = 0;
+        this.player.body.bounce.y = .5;
         this.player.body.gravity.y = 1000;
         this.player.body.collideWorldBounds = true;
-        this.player.animations.add('left', [0, 1, 2, 3], 10, true);
-        this.player.animations.add('right', [8, 5, 6, 7], 10, true);
+        this.player.animations.add('left', [2], 3, true);
+        this.player.animations.add('right', [0], 3, true);
         this.cursors = game.input.keyboard.createCursorKeys();
         this.stars = game.add.group();
         this.stars.enableBody = true;
@@ -46,14 +45,20 @@ game_state.main.prototype = {
         for (var i = 0; i < 12; i++) {
             var star = this.stars.create(i * 70, 0, 'star');
             star.body.gravity.y = 300;
-            star.body.bounce.y = 0.8 + Math.random() * 0.5;
+            star.body.bounce.y = .5 + Math.random() * 1;
+            star.body.bounce.x = -1 + Math.random() + 2;
         }
 
     },
 
 
     update: function() {
+        
+        
+        
+        
         game.physics.arcade.collide(this.player, this.platforms);
+          game.physics.arcade.collide(this.star, this.platforms);
         this.player.body.velocity.x = 0;
         if (this.cursors.left.isDown) { 
             this.player.body.velocity.x = -150;
@@ -72,12 +77,22 @@ game_state.main.prototype = {
 
             this.player.body.velocity.y = -500;
         }
+        if(this.cursors.down.isDown){
+    this.player.body.velocity.y = -100;
+}
 game.physics.arcade.collide(this.stars, this.platforms);
 game.physics.arcade.overlap(this.player, this.stars, this.collectStar,null, this);
     },
 collectStar: function(player, star){
-    this.score += 10;
+this.score += 10;
+ this.scoreText.text = 'Score: ' + this.score;
+
     star.kill();
+
+            var star = this.stars.create( Math.random() * 800, Math.random() * 600, 'star');
+            star.body.gravity.y = 300;
+            star.body.bounce.y = .5 + Math.random() * .5;
+        
 }
 
 };
